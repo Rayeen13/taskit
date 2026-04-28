@@ -1,10 +1,13 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
-type Note = {
+export type Note = {
   id: string;
   title: string;
   content: string;
+  color: string;
+  createdDate: number;
+  pinned: boolean;
 };
 
 type NotesContextType = {
@@ -28,7 +31,14 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
       try {
         const stored = await AsyncStorage.getItem(STORAGE_KEY);
         if (stored) {
-          setNotes(JSON.parse(stored));
+          const parsed = JSON.parse(stored);
+
+          const normalized = parsed.map((n: any) => ({
+            ...n,
+            pinned: n.pinned ?? false, // 🔥 ensure default
+          }));
+
+          setNotes(normalized);
         }
       } catch (e) {
         console.log("Failed to load notes", e);
@@ -42,7 +52,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
 
   // 🔥 Save notes ONLY after load completes
   useEffect(() => {
-    if (!loaded) return; // 🚫 prevent overwrite on reload
+    if (!loaded) return; // prevent overwrite on reload
 
     const saveNotes = async () => {
       try {
