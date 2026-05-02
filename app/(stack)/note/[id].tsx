@@ -3,14 +3,14 @@ import { useNotes } from "@/services/notesContext";
 import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { Stack, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    StyleSheet,
-    TextInput,
-    View,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  View,
 } from "react-native";
 
 export default function NoteDetailScreen() {
@@ -21,35 +21,49 @@ export default function NoteDetailScreen() {
 
   const note = notes.find((n) => n.id === id);
 
-  const [title, setTitle] = useState(note?.title || "");
-  const [content, setContent] = useState(note?.content || "");
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
 
-  // 🔥 Save on back
+  const isDeleting = useRef(false); // 🔥 CRITICAL FLAG
+
+  /* ========================= INIT ========================= */
+  useEffect(() => {
+    if (note) {
+      setTitle(note.title);
+      setContent(note.content);
+    }
+  }, [note]);
+
+  /* ========================= SAVE ON BACK ========================= */
   useEffect(() => {
     const unsubscribe = navigation.addListener("beforeRemove", (e) => {
       if (!note) return;
 
+      // 🔥 DO NOT SAVE IF DELETING
+      if (isDeleting.current) return;
+
       e.preventDefault();
 
       updateNote({
-        id: note.id,
+        ...note, // preserve serverId, status, etc
         title: title.trim() || "Untitled Note",
         content: content.trim(),
-        color: note.color,
-        createdDate: note.createdDate,
-        pinned: note.pinned,
       });
 
       navigation.dispatch(e.data.action);
     });
 
     return unsubscribe;
-  }, [title, content]);
+  }, [title, content, note]);
 
-  // 🔥 Delete
+  /* ========================= DELETE ========================= */
   const handleDelete = () => {
     if (!note) return;
-    deleteNote(note.id);
+
+    isDeleting.current = true; // 🔥 STOP SAVE-ON-BACK
+
+    deleteNote(note.id); // sets status = trashed
+
     navigation.goBack();
   };
 
@@ -68,52 +82,45 @@ export default function NoteDetailScreen() {
         }}
       />
 
-      <>
-        <KeyboardAvoidingView
-          style={{ flex: 1, backgroundColor: colors.background }}
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
+      <KeyboardAvoidingView
+        style={{ flex: 1, backgroundColor: colors.background }}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <View
+          style={[styles.container, { backgroundColor: colors.background }]}
         >
-          <View
-            style={[styles.container, { backgroundColor: colors.background }]}
-          >
-            {/* CARD SURFACE */}
-            <View style={[styles.card, { backgroundColor: colors.card }]}>
-              <TextInput
-                value={title}
-                onChangeText={setTitle}
-                style={[styles.title, { color: colors.text }]}
-                placeholder="Title"
-                placeholderTextColor={colors.subText}
-              />
+          <View style={[styles.card, { backgroundColor: colors.card }]}>
+            <TextInput
+              value={title}
+              onChangeText={setTitle}
+              style={[styles.title, { color: colors.text }]}
+              placeholder="Title"
+              placeholderTextColor={colors.subText}
+            />
 
-              <View
-                style={[
-                  styles.divider,
-                  { backgroundColor: colors.border || "#e0e0e0" },
-                ]}
-              />
+            <View
+              style={[
+                styles.divider,
+                { backgroundColor: colors.border || "#e0e0e0" },
+              ]}
+            />
 
-              <TextInput
-                value={content}
-                onChangeText={setContent}
-                style={[styles.content, { color: colors.text }]}
-                multiline
-                placeholder="Start typing..."
-                placeholderTextColor={colors.subText}
-              />
-            </View>
+            <TextInput
+              value={content}
+              onChangeText={setContent}
+              style={[styles.content, { color: colors.text }]}
+              multiline
+              placeholder="Start typing..."
+              placeholderTextColor={colors.subText}
+            />
           </View>
-        </KeyboardAvoidingView>
-      </>
+        </View>
+      </KeyboardAvoidingView>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-  },
-
   container: {
     flex: 1,
     padding: 12,

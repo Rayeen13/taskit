@@ -1,12 +1,14 @@
 import { AuthProvider, useAuth } from "@/services/authContext";
 import { NotesProvider } from "@/services/notesContext";
 import { ThemeProvider } from "@/services/themeContext";
-import { MaterialIcons } from "@expo/vector-icons";
+import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import { DrawerActions } from "@react-navigation/native";
 import { usePathname, useRouter } from "expo-router";
 import { Drawer } from "expo-router/drawer";
 import { useEffect, useRef } from "react";
+import "react-native-get-random-values";
+
 import {
   BackHandler,
   StyleSheet,
@@ -66,6 +68,30 @@ function CustomDrawerContent(props: any) {
           styles.item,
           {
             backgroundColor: isActive("/") ? "#1da1f2" : colors.card,
+          },
+        ]}
+      />
+      {/* 🔥 NEW: Islamic Home */}
+      <DrawerItem
+        label="Islamic Home"
+        onPress={() => go("/islamicishtehar/home")}
+        labelStyle={[
+          styles.label,
+          { color: isActive("/islamicishtehar/home") ? "#fff" : colors.text },
+        ]}
+        icon={({ size }) => (
+          <FontAwesome
+            name="home"
+            size={size}
+            color={isActive("/islamicishtehar/home") ? "#fff" : colors.text}
+          />
+        )}
+        style={[
+          styles.item,
+          {
+            backgroundColor: isActive("/islamicishtehar/home")
+              ? "#1da1f2"
+              : colors.card,
           },
         ]}
       />

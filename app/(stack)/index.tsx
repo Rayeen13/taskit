@@ -38,7 +38,9 @@ export default function HomeScreen() {
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-  const filteredNotes = notes.filter((n) =>
+  const activeNotes = notes.filter((n) => n.status === "active");
+
+  const filteredNotes = activeNotes.filter((n) =>
     (n.title + " " + n.content).toLowerCase().includes(query.toLowerCase()),
   );
 
@@ -177,6 +179,13 @@ export default function HomeScreen() {
           <View style={[styles.inner, { backgroundColor: colors.background }]}>
             {/* 🔥 Layout Toggle */}
             <View style={styles.topActions}>
+              <Pressable
+                onPress={() => router.push("/trash")}
+                style={[styles.iconBtn, { backgroundColor: colors.card }]}
+              >
+                <FontAwesome name="trash" size={18} color={colors.text} />
+              </Pressable>
+
               <Pressable
                 onPress={toggleLayout}
                 style={[styles.layoutBtn, { backgroundColor: colors.card }]}
@@ -407,8 +416,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   topActions: {
-    alignItems: "flex-end",
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 10,
     paddingVertical: 6,
+  },
+
+  iconBtn: {
+    padding: 8,
+    borderRadius: 10,
   },
 
   layoutBtn: {

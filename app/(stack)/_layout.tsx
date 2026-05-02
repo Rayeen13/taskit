@@ -19,6 +19,15 @@ export default function StackLayout() {
       <Stack.Screen name="profile" options={{ title: "Profile" }} />
       <Stack.Screen name="settings" options={{ title: "Settings" }} />
       <Stack.Screen name="about" options={{ title: "About" }} />
+      <Stack.Screen
+        name="islamicishtehar/home"
+        options={{ title: "Islamic Home" }}
+      />
+
+      <Stack.Screen
+        name="islamicishtehar/hadees"
+        options={{ title: "Hadees Sharif" }}
+      />
     </Stack>
   );
 }

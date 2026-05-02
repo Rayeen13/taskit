@@ -1,15 +1,7 @@
+import { Note } from "@/services/notesContext";
 import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-
-type Note = {
-  id: string;
-  title: string;
-  content: string;
-  color: string;
-  createdDate: number;
-  pinned: boolean;
-};
 
 type Props = {
   note: Note;
@@ -33,7 +25,10 @@ export default function NoteItem({
   return (
     <Pressable
       onPress={() =>
-        router.push({ pathname: "/note/[id]", params: { id: note.id } })
+        router.push({
+          pathname: "/note/[id]",
+          params: { id: note.id },
+        })
       }
       onLongPress={() => onLongPress?.(note)}
       delayLongPress={250}
@@ -43,23 +38,20 @@ export default function NoteItem({
           style={[
             styles.base,
             layout !== "card" && { backgroundColor: colors.card },
-            layout === "list" && [styles.listItem],
-            layout === "grid" && [styles.gridItem],
+            layout === "list" && styles.listItem,
+            layout === "grid" && styles.gridItem,
             layout === "card" && [
               styles.cardItem,
               { backgroundColor: note.color },
             ],
             isSelected && styles.selectedOutline,
             isSelected && styles.selectedActive,
-            // pressed && !isSelected && styles.pressed,
             pressed && styles.pressed,
           ]}
         >
           <View style={styles.row}>
-            {/* INDICATOR */}
             <View style={[pressed && styles.indicatorActive]} />
 
-            {/* CONTENT */}
             <View style={styles.main}>
               <View style={styles.content}>
                 <View style={styles.titleRow}>
@@ -80,28 +72,12 @@ export default function NoteItem({
                 <Text
                   style={[styles.text, { color: colors.text }]}
                   numberOfLines={
-                    layout === "list"
-                      ? 2 // 📄 compact preview
-                      : layout === "grid"
-                        ? 5 // 🧱 medium block
-                        : 9 // 🎨 card (Keep style max)
+                    layout === "list" ? 2 : layout === "grid" ? 5 : 9
                   }
                 >
                   {note.content}
                 </Text>
               </View>
-
-              {/* DELETE */}
-              <Pressable
-                onPress={(e) => {
-                  e.stopPropagation();
-                  onDelete?.(note.id);
-                }}
-                style={styles.deleteBtn}
-                hitSlop={10}
-              >
-                <FontAwesome name="trash" size={16} color={colors.subText} />
-              </Pressable>
             </View>
           </View>
         </View>
@@ -111,7 +87,6 @@ export default function NoteItem({
 }
 
 const styles = StyleSheet.create({
-  /* 🔥 BASE */
   base: {
     borderRadius: 12,
     paddingVertical: 10,
@@ -120,20 +95,18 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 3,
   },
-  /* LIST */
+
   listItem: {
     marginVertical: 4,
     marginHorizontal: 4,
   },
 
-  /* GRID */
   gridItem: {
     height: 140,
     margin: 4,
     overflow: "hidden",
   },
 
-  /* CARD (🔥 Google Keep style) */
   cardItem: {
     margin: 4,
     borderRadius: 12,
@@ -143,13 +116,11 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
 
-  /* ROW */
   row: {
     flexDirection: "row",
     flex: 1,
   },
 
-  /* PRESS */
   pressed: {
     opacity: 0.85,
   },
@@ -158,7 +129,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#1da1f2",
   },
 
-  /* CONTENT */
   main: {
     flex: 1,
     justifyContent: "space-between",
@@ -194,11 +164,11 @@ const styles = StyleSheet.create({
 
   selectedOutline: {
     borderWidth: 2,
-    borderColor: "#1da1f2", // 🔵 Keep-like blue
+    borderColor: "#1da1f2",
   },
+
   selectedActive: {
     transform: [{ scale: 1.03 }],
-
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
